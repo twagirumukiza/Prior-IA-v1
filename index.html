@@ -85,19 +85,19 @@
                         <h3 class="text-base font-semibold text-white mb-2 flex items-center gap-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-indigo-400"></i> Quel travail souhaitez-vous organiser ?
                         </h3>
-                        <p class="text-xs text-slate-400 mb-4">Décrivez votre objectif. L'IA découpera automatiquement le travail en tâches.</p>
+                        <p class="text-xs text-slate-400 mb-4">Décrivez votre objectif. L'IA découpera automatiquement le travail en plusieurs tâches concrètes.</p>
                         
                         <div class="space-y-4">
                             <textarea 
                                 x-model="userInput" 
                                 rows="3" 
                                 class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition"
-                                placeholder="Ex : Je dois préparer le lancement de mon application sur GitHub..."></textarea>
+                                placeholder="Ex : Je dois trouver un nouveau client pour mes services de cybersécurité..."></textarea>
                             
                             <div class="flex flex-wrap items-center justify-between gap-4">
                                 <div class="flex items-center gap-2 text-xs text-slate-400">
                                     <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span>Moteur IA actif</span>
+                                    <span>Moteur IA intelligent actif</span>
                                 </div>
                                 <button 
                                     @click="generateTasks()" 
@@ -107,7 +107,7 @@
                                         <i data-lucide="wand-2" class="w-4 h-4"></i> Analyser et découper
                                     </span>
                                     <span x-show="isAnalyzing" class="flex items-center gap-2">
-                                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Traitement...
+                                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Découpage en cours...
                                     </span>
                                 </button>
                             </div>
@@ -355,7 +355,7 @@
                         <div class="space-y-3 pt-2">
                             <label class="block text-xs font-medium text-slate-400">Fournisseur IA & Clé API</label>
                             <select x-model="aiProvider" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="local">Sans IA (Génération locale)</option>
+                                <option value="local">IA Intelligente intégrée</option>
                                 <option value="gemini">Google Gemini</option>
                                 <option value="openai">OpenAI (ChatGPT)</option>
                             </select>
@@ -467,12 +467,37 @@
                 generateTasks() {
                     if (!this.userInput.trim()) return;
                     this.isAnalyzing = true;
+                    
                     setTimeout(() => {
-                        const newTasks = [
-                            { id: Date.now() + 1, title: 'Analyser la demande : ' + this.userInput.substring(0, 20) + '...', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Nécessaire pour cadrer le projet.', completed: false },
-                            { id: Date.now() + 2, title: 'Structurer les livrables', duration: '2 h', dueDate: 'Demain', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Vision claire des étapes.', completed: false }
-                        ];
-                        this.tasks.push(...newTasks);
+                        const inputLower = this.userInput.toLowerCase();
+                        let generated = [];
+                        
+                        // Découpage intelligent basé sur le contexte de la saisie
+                        if (inputLower.includes('client') || inputLower.includes('prospect') || inputLower.includes('commercial')) {
+                            generated = [
+                                { id: Date.now() + 1, title: 'Identifier et lister les cibles potentielles', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Étape indispensable pour cibler les efforts commerciaux.', completed: false },
+                                { id: Date.now() + 2, title: 'Rédiger le message de proposition sur mesure', duration: '45 min', dueDate: 'Demain', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Clé pour maximiser le taux de conversion.', completed: false },
+                                { id: Date.now() + 3, title: 'Envoyer les e-mails de prise de contact', duration: '30 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Action de prospection régulière.', completed: false },
+                                { id: Date.now() + 4, title: 'Créer les visuels d’accompagnement', duration: '1 h', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 3, aiReason: 'Tâche graphique pouvant être déléguée.', completed: false }
+                            ];
+                        } else if (inputLower.includes('application') || inputLower.includes('site') || inputLower.includes('code') || inputLower.includes('github')) {
+                            generated = [
+                                { id: Date.now() + 1, title: 'Spécifier les fonctionnalités principales', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Cadrage technique initial obligatoire.', completed: false },
+                                { id: Date.now() + 2, title: 'Développer le prototype fonctionnel', duration: '3 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Réalisation du cœur du projet.', completed: false },
+                                { id: Date.now() + 3, title: 'Réaliser les tests et corriger les bugs', duration: '1h30', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Garantie de qualité avant déploiement.', completed: false },
+                                { id: Date.now() + 4, title: 'Configurer l’hébergement et le déploiement', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Mise en ligne finale.', completed: false }
+                            ];
+                        } else {
+                            // Découpage générique intelligent en 3 étapes structurées
+                            let cleanTitle = this.userInput.length > 30 ? this.userInput.substring(0, 30) + '...' : this.userInput;
+                            generated = [
+                                { id: Date.now() + 1, title: 'Cadrer et analyser les besoins : ' + cleanTitle, duration: '45 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Nécessaire pour définir le plan d’action.', completed: false },
+                                { id: Date.now() + 2, title: 'Réaliser la phase de conception / exécution', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Cœur de la réalisation du projet.', completed: false },
+                                { id: Date.now() + 3, title: 'Valider et finaliser les livrables', duration: '1 h', dueDate: 'Vendredi', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Contrôle qualité final avant clôture.', completed: false }
+                            ];
+                        }
+
+                        this.tasks.push(...generated);
                         this.isAnalyzing = false;
                         this.userInput = '';
                         this.saveToStorage();
