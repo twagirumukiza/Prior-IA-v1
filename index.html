@@ -25,7 +25,7 @@
                     </div>
                     <div x-show="sidebarOpen" x-transition class="truncate">
                         <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
-                            PriorIA <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-medium">V1</span>
+                            PriorIA <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-medium">V1.2</span>
                         </h1>
                         <p class="text-[10px] text-slate-400 truncate">Matrice IA Eisenhower</p>
                     </div>
@@ -85,19 +85,19 @@
                         <h3 class="text-base font-semibold text-white mb-2 flex items-center gap-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-indigo-400"></i> Quel travail souhaitez-vous organiser ?
                         </h3>
-                        <p class="text-xs text-slate-400 mb-4">Décrivez votre objectif. L'IA découpera automatiquement le travail en plusieurs tâches concrètes.</p>
+                        <p class="text-xs text-slate-400 mb-4">Décrivez votre objectif en langage naturel. L'IA va générer des micro-tâches concrètes et bien classées.</p>
                         
                         <div class="space-y-4">
                             <textarea 
                                 x-model="userInput" 
                                 rows="3" 
                                 class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition"
-                                placeholder="Ex : Je dois trouver un nouveau client pour mes services de cybersécurité..."></textarea>
+                                placeholder="Ex : Je dois trouver un nouveau travail en cybersécurité ou en artistique..."></textarea>
                             
                             <div class="flex flex-wrap items-center justify-between gap-4">
                                 <div class="flex items-center gap-2 text-xs text-slate-400">
                                     <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span>Moteur IA intelligent actif</span>
+                                    <span>Moteur IA contextuel actif</span>
                                 </div>
                                 <button 
                                     @click="generateTasks()" 
@@ -107,7 +107,7 @@
                                         <i data-lucide="wand-2" class="w-4 h-4"></i> Analyser et découper
                                     </span>
                                     <span x-show="isAnalyzing" class="flex items-center gap-2">
-                                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Découpage en cours...
+                                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Analyse en cours...
                                     </span>
                                 </button>
                             </div>
@@ -355,7 +355,7 @@
                         <div class="space-y-3 pt-2">
                             <label class="block text-xs font-medium text-slate-400">Fournisseur IA & Clé API</label>
                             <select x-model="aiProvider" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="local">IA Intelligente intégrée</option>
+                                <option value="local">IA Contextuelle Intelligente</option>
                                 <option value="gemini">Google Gemini</option>
                                 <option value="openai">OpenAI (ChatGPT)</option>
                             </select>
@@ -443,20 +443,20 @@
                 isEditing: false,
                 currentTask: { id: null, title: '', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 3, urgency: 3, aiReason: '', completed: false },
                 tasks: [
-                    { id: 1, title: 'Choisir les projets à présenter', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Fondation indispensable pour démarrer.', completed: false },
-                    { id: 2, title: 'Préparer les descriptions', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 2, aiReason: 'Important mais sans échéance critique immédiate.', completed: false },
-                    { id: 3, title: 'Optimiser les images', duration: '1 h', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 4, aiReason: 'Tâche technique pouvant être déléguée.', completed: false },
-                    { id: 4, title: 'Mettre le site en ligne', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Étape finale bloquante pour la visibilité.', completed: false }
+                    { id: 1, title: 'Mettre à jour mon CV et mon profil LinkedIn', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Fondation indispensable avant de postuler.', completed: false },
+                    { id: 2, title: 'Cibler 5 entreprises ou offres pertinentes', duration: '45 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 5, urgency: 3, aiReason: 'Permet de structurer la recherche.', completed: false },
+                    { id: 3, title: 'Rédiger un modèle de message d’accroche', duration: '30 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 2, aiReason: 'Gain de temps pour les futures candidatures.', completed: false },
+                    { id: 4, title: 'Envoyer 3 candidatures ciblées', duration: '1 h', dueDate: 'Vendredi', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Action concrète de progression.', completed: false }
                 ],
                 init() {
-                    const saved = localStorage.getItem('prior_ia_tasks');
+                    const saved = localStorage.getItem('prior_ia_tasks_v2');
                     if (saved) {
                         try { this.tasks = JSON.parse(saved); } catch(e) {}
                     }
                     this.$nextTick(() => { lucide.createIcons(); });
                 },
                 saveToStorage() {
-                    localStorage.setItem('prior_ia_tasks', JSON.stringify(this.tasks));
+                    localStorage.setItem('prior_ia_tasks_v2', JSON.stringify(this.tasks));
                     this.$nextTick(() => { lucide.createIcons(); });
                 },
                 getPageTitle() {
@@ -472,28 +472,33 @@
                         const inputLower = this.userInput.toLowerCase();
                         let generated = [];
                         
-                        // Découpage intelligent basé sur le contexte de la saisie
-                        if (inputLower.includes('client') || inputLower.includes('prospect') || inputLower.includes('commercial')) {
+                        // Découpage intelligent, concret et non-épique selon l'objectif saisi
+                        if (inputLower.includes('travail') || inputLower.includes('emploi') || inputLower.includes('poste') || inputLower.includes('alternance') || inputLower.includes('mission')) {
                             generated = [
-                                { id: Date.now() + 1, title: 'Identifier et lister les cibles potentielles', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Étape indispensable pour cibler les efforts commerciaux.', completed: false },
-                                { id: Date.now() + 2, title: 'Rédiger le message de proposition sur mesure', duration: '45 min', dueDate: 'Demain', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Clé pour maximiser le taux de conversion.', completed: false },
-                                { id: Date.now() + 3, title: 'Envoyer les e-mails de prise de contact', duration: '30 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Action de prospection régulière.', completed: false },
-                                { id: Date.now() + 4, title: 'Créer les visuels d’accompagnement', duration: '1 h', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 3, aiReason: 'Tâche graphique pouvant être déléguée.', completed: false }
+                                { id: Date.now() + 1, title: 'Actualiser mon CV et mon profil en ligne', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Base critique pour être visible immédiatement.', completed: false },
+                                { id: Date.now() + 2, title: 'Identifier 5 offres ou structures cibles', duration: '45 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 5, urgency: 3, aiReason: 'Évite de postuler au hasard.', completed: false },
+                                { id: Date.now() + 3, title: 'Préparer un message de motivation type', duration: '30 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 2, aiReason: 'À adapter rapidement selon les offres.', completed: false },
+                                { id: Date.now() + 4, title: 'Envoyer 3 candidatures de la semaine', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Action directe pour avancer.', completed: false }
+                            ];
+                        } else if (inputLower.includes('client') || inputLower.includes('prospect') || inputLower.includes('commercial')) {
+                            generated = [
+                                { id: Date.now() + 1, title: 'Lister 10 prospects qualifiés', duration: '45 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Cible précise pour démarrer la prospection.', completed: false },
+                                { id: Date.now() + 2, title: 'Rédiger l’e-mail de proposition commerciale', duration: '30 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Argumentaire percutant.', completed: false },
+                                { id: Date.now() + 3, title: 'Envoyer les premiers messages de contact', duration: '30 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Génération de leads.', completed: false }
                             ];
                         } else if (inputLower.includes('application') || inputLower.includes('site') || inputLower.includes('code') || inputLower.includes('github')) {
                             generated = [
-                                { id: Date.now() + 1, title: 'Spécifier les fonctionnalités principales', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Cadrage technique initial obligatoire.', completed: false },
-                                { id: Date.now() + 2, title: 'Développer le prototype fonctionnel', duration: '3 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Réalisation du cœur du projet.', completed: false },
-                                { id: Date.now() + 3, title: 'Réaliser les tests et corriger les bugs', duration: '1h30', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Garantie de qualité avant déploiement.', completed: false },
-                                { id: Date.now() + 4, title: 'Configurer l’hébergement et le déploiement', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Mise en ligne finale.', completed: false }
+                                { id: Date.now() + 1, title: 'Définir les écrans et fonctionnalités clés', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Cadrage rapide avant codage.', completed: false },
+                                { id: Date.now() + 2, title: 'Écrire le code de la page principale', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Réalisation concrète du cœur du projet.', completed: false },
+                                { id: Date.now() + 3, title: 'Tester sur mobile et corriger les bugs', duration: '45 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 3, urgency: 3, aiReason: 'Qualité visuelle et fonctionnelle.', completed: false }
                             ];
                         } else {
-                            // Découpage générique intelligent en 3 étapes structurées
-                            let cleanTitle = this.userInput.length > 30 ? this.userInput.substring(0, 30) + '...' : this.userInput;
+                            // Découpage générique court et opérationnel
+                            let cleanTitle = this.userInput.length > 25 ? this.userInput.substring(0, 25) + '...' : this.userInput;
                             generated = [
-                                { id: Date.now() + 1, title: 'Cadrer et analyser les besoins : ' + cleanTitle, duration: '45 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Nécessaire pour définir le plan d’action.', completed: false },
-                                { id: Date.now() + 2, title: 'Réaliser la phase de conception / exécution', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Cœur de la réalisation du projet.', completed: false },
-                                { id: Date.now() + 3, title: 'Valider et finaliser les livrables', duration: '1 h', dueDate: 'Vendredi', assignee: 'Moi', importance: 4, urgency: 4, aiReason: 'Contrôle qualité final avant clôture.', completed: false }
+                                { id: Date.now() + 1, title: 'Définir la première étape pour : ' + cleanTitle, duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Action immédiate de démarrage.', completed: false },
+                                { id: Date.now() + 2, title: 'Réaliser le travail principal en bloc court', duration: '1h30', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Avancement régulier.', completed: false },
+                                { id: Date.now() + 3, title: 'Vérifier le résultat et finaliser', duration: '30 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Validation de fin de tâche.', completed: false }
                             ];
                         }
 
@@ -501,7 +506,7 @@
                         this.isAnalyzing = false;
                         this.userInput = '';
                         this.saveToStorage();
-                    }, 1000);
+                    }, 800);
                 },
                 getQuadrant(imp, urg) {
                     if (imp >= 3 && urg >= 3) return 'do';
@@ -514,7 +519,7 @@
                 },
                 openAddModal() {
                     this.isEditing = false;
-                    this.currentTask = { id: Date.now(), title: '', duration: '1 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 3, urgency: 3, aiReason: 'Création manuelle.', completed: false };
+                    this.currentTask = { id: Date.now(), title: '', duration: '30 min', dueDate: 'Cette semaine', assignee: 'Moi', importance: 3, urgency: 3, aiReason: 'Création manuelle.', completed: false };
                     this.showModal = true;
                 },
                 editTask(task) {
