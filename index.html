@@ -42,6 +42,10 @@
                     <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
                     <span x-show="sidebarOpen" x-transition>Tableau & Matrice</span>
                 </button>
+                <button @click="currentTab = 'tasksList'" :class="currentTab === 'tasksList' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-700/60'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition">
+                    <i data-lucide="list-checks" class="w-5 h-5 shrink-0"></i>
+                    <span x-show="sidebarOpen" x-transition>Liste des tâches</span>
+                </button>
                 <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-700/60'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition">
                     <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
                     <span x-show="sidebarOpen" x-transition>Paramètres</span>
@@ -59,7 +63,7 @@
             <!-- Header supérieur -->
             <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-30 px-6 py-3.5 flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider" x-text="currentTab === 'matrix' ? 'Espace de travail - Matrice' : 'Configuration & Paramètres'"></h2>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider" x-text="getPageTitle()"></h2>
                 </div>
                 <div class="flex items-center gap-2">
                     <button @click="exportJSON()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium text-slate-200 transition">
@@ -112,7 +116,7 @@
 
                     <div class="flex justify-between items-center pt-2">
                         <h4 class="text-base font-bold text-white flex items-center gap-2">
-                            <i data-lucide="list-todo" class="w-5 h-5 text-indigo-400"></i> Matrice Eisenhower Interactive (<span x-text="tasks.length"></span>)
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 text-indigo-400"></i> Matrice Eisenhower Interactive (<span x-text="tasks.length"></span>)
                         </h4>
                         <button @click="openAddModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition">
                             <i data-lucide="plus" class="w-4 h-4"></i> Nouvelle tâche
@@ -133,9 +137,12 @@
                             </div>
                             <div class="space-y-3 flex-1 min-h-[140px]">
                                 <template x-for="task in getTasksByQuadrant('do')" :key="task.id">
-                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-rose-500/50 transition">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-rose-500/50 transition" :class="task.completed && 'opacity-60'">
                                         <div class="flex justify-between items-start gap-2">
-                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-2.5">
+                                                <input type="checkbox" x-model="task.completed" @change="saveToStorage()" class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                                <span class="font-medium text-sm text-white" :class="task.completed && 'line-through text-slate-400'" x-text="task.title"></span>
+                                            </div>
                                             <div class="flex items-center gap-1">
                                                 <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
                                                 <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
@@ -164,9 +171,12 @@
                             </div>
                             <div class="space-y-3 flex-1 min-h-[140px]">
                                 <template x-for="task in getTasksByQuadrant('plan')" :key="task.id">
-                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-amber-500/50 transition">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-amber-500/50 transition" :class="task.completed && 'opacity-60'">
                                         <div class="flex justify-between items-start gap-2">
-                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-2.5">
+                                                <input type="checkbox" x-model="task.completed" @change="saveToStorage()" class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                                <span class="font-medium text-sm text-white" :class="task.completed && 'line-through text-slate-400'" x-text="task.title"></span>
+                                            </div>
                                             <div class="flex items-center gap-1">
                                                 <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
                                                 <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
@@ -195,9 +205,12 @@
                             </div>
                             <div class="space-y-3 flex-1 min-h-[140px]">
                                 <template x-for="task in getTasksByQuadrant('delegate')" :key="task.id">
-                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-yellow-500/50 transition">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-yellow-500/50 transition" :class="task.completed && 'opacity-60'">
                                         <div class="flex justify-between items-start gap-2">
-                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-2.5">
+                                                <input type="checkbox" x-model="task.completed" @change="saveToStorage()" class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                                <span class="font-medium text-sm text-white" :class="task.completed && 'line-through text-slate-400'" x-text="task.title"></span>
+                                            </div>
                                             <div class="flex items-center gap-1">
                                                 <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
                                                 <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
@@ -226,9 +239,12 @@
                             </div>
                             <div class="space-y-3 flex-1 min-h-[140px]">
                                 <template x-for="task in getTasksByQuadrant('eliminate')" :key="task.id">
-                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-emerald-500/50 transition">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-emerald-500/50 transition" :class="task.completed && 'opacity-60'">
                                         <div class="flex justify-between items-start gap-2">
-                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-2.5">
+                                                <input type="checkbox" x-model="task.completed" @change="saveToStorage()" class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                                <span class="font-medium text-sm text-white" :class="task.completed && 'line-through text-slate-400'" x-text="task.title"></span>
+                                            </div>
                                             <div class="flex items-center gap-1">
                                                 <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
                                                 <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
@@ -249,7 +265,70 @@
                     </div>
                 </div>
 
-                <!-- ONGLET 2 : PARAMÈTRES -->
+                <!-- ONGLET 2 : LISTE DES TÂCHES (TABLEAU) -->
+                <div x-show="currentTab === 'tasksList'" class="space-y-6">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+                        <div class="p-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Tableau général des tâches
+                                </h3>
+                                <p class="text-xs text-slate-400">Gérez le statut, suivez les échéances et modifiez vos tâches en un coup d'œil.</p>
+                            </div>
+                            <button @click="openAddModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white transition shadow-lg shadow-indigo-600/20">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Nouvelle tâche
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-900/60 text-slate-400 uppercase tracking-wider border-b border-slate-700">
+                                        <th class="py-3 px-4 font-semibold text-center w-16">Statut</th>
+                                        <th class="py-3 px-4 font-semibold">Tâche & Explication IA</th>
+                                        <th class="py-3 px-4 font-semibold">Durée</th>
+                                        <th class="py-3 px-4 font-semibold">Échéance</th>
+                                        <th class="py-3 px-4 font-semibold">Responsable</th>
+                                        <th class="py-3 px-4 font-semibold text-center">Score (Imp / Urg)</th>
+                                        <th class="py-3 px-4 font-semibold text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-700/60">
+                                    <template x-for="task in tasks" :key="task.id">
+                                        <tr class="hover:bg-slate-700/30 transition" :class="task.completed && 'opacity-50'">
+                                            <td class="py-3.5 px-4 text-center">
+                                                <input type="checkbox" x-model="task.completed" @change="saveToStorage()" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                            </td>
+                                            <td class="py-3.5 px-4">
+                                                <div class="font-medium text-white text-sm" :class="task.completed && 'line-through text-slate-400'" x-text="task.title"></div>
+                                                <div class="text-[11px] text-slate-400 italic mt-0.5" x-text="'💡 ' + task.aiReason"></div>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-slate-300" x-text="task.duration"></td>
+                                            <td class="py-3.5 px-4 text-slate-300" x-text="task.dueDate"></td>
+                                            <td class="py-3.5 px-4">
+                                                <span class="px-2 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 font-medium" x-text="task.assignee"></span>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-center">
+                                                <span class="px-2 py-0.5 rounded bg-slate-900 text-slate-300 font-mono" x-text="task.importance + ' / ' + task.urgency"></span>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-right">
+                                                <div class="flex items-center justify-end gap-1">
+                                                    <button @click="editTask(task)" class="p-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white transition"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                                                    <button @click="deleteTask(task.id)" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="tasks.length === 0">
+                                        <td colspan="7" class="py-8 text-center text-slate-500 italic">Aucune tâche enregistrée pour le moment.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ONGLET 3 : PARAMÈTRES -->
                 <div x-show="currentTab === 'settings'" class="space-y-6 max-w-2xl">
                     <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
                         <h3 class="text-base font-bold text-white border-b border-slate-700 pb-3 flex items-center gap-2">
@@ -362,12 +441,12 @@
                 isAnalyzing: false,
                 showModal: false,
                 isEditing: false,
-                currentTask: { id: null, title: '', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 3, urgency: 3, aiReason: '' },
+                currentTask: { id: null, title: '', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 3, urgency: 3, aiReason: '', completed: false },
                 tasks: [
-                    { id: 1, title: 'Choisir les projets à présenter', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Fondation indispensable pour démarrer.' },
-                    { id: 2, title: 'Préparer les descriptions', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 2, aiReason: 'Important mais sans échéance critique immédiate.' },
-                    { id: 3, title: 'Optimiser les images', duration: '1 h', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 4, aiReason: 'Tâche technique pouvant être déléguée.' },
-                    { id: 4, title: 'Mettre le site en ligne', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Étape finale bloquante pour la visibilité.' }
+                    { id: 1, title: 'Choisir les projets à présenter', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Fondation indispensable pour démarrer.', completed: false },
+                    { id: 2, title: 'Préparer les descriptions', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 2, aiReason: 'Important mais sans échéance critique immédiate.', completed: false },
+                    { id: 3, title: 'Optimiser les images', duration: '1 h', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 4, aiReason: 'Tâche technique pouvant être déléguée.', completed: false },
+                    { id: 4, title: 'Mettre le site en ligne', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Étape finale bloquante pour la visibilité.', completed: false }
                 ],
                 init() {
                     const saved = localStorage.getItem('prior_ia_tasks');
@@ -380,13 +459,18 @@
                     localStorage.setItem('prior_ia_tasks', JSON.stringify(this.tasks));
                     this.$nextTick(() => { lucide.createIcons(); });
                 },
+                getPageTitle() {
+                    if (this.currentTab === 'matrix') return 'Espace de travail - Matrice';
+                    if (this.currentTab === 'tasksList') return 'Liste globale des tâches';
+                    if (this.currentTab === 'settings') return 'Configuration & Paramètres';
+                },
                 generateTasks() {
                     if (!this.userInput.trim()) return;
                     this.isAnalyzing = true;
                     setTimeout(() => {
                         const newTasks = [
-                            { id: Date.now() + 1, title: 'Analyser la demande : ' + this.userInput.substring(0, 20) + '...', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Nécessaire pour cadrer le projet.' },
-                            { id: Date.now() + 2, title: 'Structurer les livrables', duration: '2 h', dueDate: 'Demain', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Vision claire des étapes.' }
+                            { id: Date.now() + 1, title: 'Analyser la demande : ' + this.userInput.substring(0, 20) + '...', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Nécessaire pour cadrer le projet.', completed: false },
+                            { id: Date.now() + 2, title: 'Structurer les livrables', duration: '2 h', dueDate: 'Demain', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Vision claire des étapes.', completed: false }
                         ];
                         this.tasks.push(...newTasks);
                         this.isAnalyzing = false;
@@ -405,7 +489,7 @@
                 },
                 openAddModal() {
                     this.isEditing = false;
-                    this.currentTask = { id: Date.now(), title: '', duration: '1 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 3, urgency: 3, aiReason: 'Création manuelle.' };
+                    this.currentTask = { id: Date.now(), title: '', duration: '1 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 3, urgency: 3, aiReason: 'Création manuelle.', completed: false };
                     this.showModal = true;
                 },
                 editTask(task) {
@@ -442,9 +526,9 @@
                     dlAnchorElem.click();
                 },
                 exportCSV() {
-                    let csvContent = "data:text/csv;charset=utf-8,Titre,Durée,Échéance,Responsable,Importance,Urgence,Raison IA\n";
+                    let csvContent = "data:text/csv;charset=utf-8,Titre,Durée,Échéance,Responsable,Importance,Urgence,Terminée,Raison IA\n";
                     this.tasks.forEach(t => {
-                        csvContent += `"${t.title}","${t.duration}","${t.dueDate}","${t.assignee}",${t.importance},${t.urgency},"${t.aiReason}"\n`;
+                        csvContent += `"${t.title}","${t.duration}","${t.dueDate}","${t.assignee}",${t.importance},${t.urgency},${t.completed},"${t.aiReason}"\n`;
                     });
                     const encodedUri = encodeURIComponent(csvContent);
                     const dlAnchorElem = document.createElement('a');
