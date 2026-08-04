@@ -11,222 +11,291 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="h-full bg-slate-900 text-slate-100 font-sans antialiased" x-data="priorIAApp()" x-init="init()">
+<body class="h-full bg-slate-900 text-slate-100 font-sans antialiased overflow-x-hidden" x-data="priorIAApp()" x-init="init()">
 
-    <div class="min-h-full flex flex-col">
-        <!-- Header -->
-        <header class="bg-slate-800 border-b border-slate-700 shadow-sm sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-600 p-2 rounded-xl text-white">
-                        <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+    <div class="min-h-full flex">
+        
+        <!-- Sidebar rétractable à gauche -->
+        <aside :class="sidebarOpen ? 'w-64' : 'w-20'" class="bg-slate-800 border-r border-slate-700 flex flex-col transition-all duration-300 z-40 sticky top-0 h-screen">
+            <!-- Top Sidebar / Brand -->
+            <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="bg-indigo-600 p-2 rounded-xl text-white shrink-0">
+                        <i data-lucide="brain-circuit" class="w-5 h-5"></i>
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                            PriorIA <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-medium border border-indigo-500/30">MVP V1</span>
+                    <div x-show="sidebarOpen" x-transition class="truncate">
+                        <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
+                            PriorIA <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-medium">V1</span>
                         </h1>
-                        <p class="text-xs text-slate-400">Transformez vos objectifs en tâches priorisées</p>
+                        <p class="text-[10px] text-slate-400 truncate">Matrice IA Eisenhower</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 flex-wrap justify-center">
-                    <button @click="exportJSON()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium text-slate-200 transition">
-                        <i data-lucide="download" class="w-4 h-4"></i> Export JSON
-                    </button>
-                    <button @click="exportCSV()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium text-slate-200 transition">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export CSV
-                    </button>
-                    <button @click="resetAll()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-xs font-medium text-rose-400 border border-rose-500/20 transition">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> Tout effacer
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex-1 w-full space-y-8">
-            
-            <!-- Écran 1 : Saisie du travail -->
-            <section class="bg-slate-800/60 backdrop-blur border border-slate-700/80 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-base font-semibold text-white mb-2 flex items-center gap-2">
-                    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-400"></i> Quel travail souhaitez-vous organiser ?
-                </h2>
-                <p class="text-xs text-slate-400 mb-4">Décrivez votre objectif ou collez votre problématique. L'IA se chargera de la découper en tâches concrètes.</p>
-                
-                <div class="space-y-4">
-                    <textarea 
-                        x-model="userInput" 
-                        rows="3" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm transition"
-                        placeholder="Ex : Je dois créer un portfolio professionnel pour présenter mes jeux et mes sculptures..."></textarea>
-                    
-                    <div class="flex flex-wrap items-center justify-between gap-4">
-                        <div class="flex items-center gap-2 text-xs text-slate-400">
-                            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            IA locale prête (Simulation V1)
-                        </div>
-                        <button 
-                            @click="generateTasks()" 
-                            :disabled="isAnalyzing || !userInput.trim()"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm shadow-lg shadow-indigo-600/20 transition cursor-pointer">
-                            <span x-show="!isAnalyzing" class="flex items-center gap-2">
-                                <i data-lucide="wand-2" class="w-4 h-4"></i> Analyser et découper avec l'IA
-                            </span>
-                            <span x-show="isAnalyzing" class="flex items-center gap-2">
-                                <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Découpage en cours...
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Modal / Section Ajout Manuel de Tâche -->
-            <div class="flex justify-between items-center pt-2">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i data-lucide="list-todo" class="w-5 h-5 text-indigo-400"></i> Liste et Matrice des Tâches (<span x-text="tasks.length"></span>)
-                </h3>
-                <button @click="openAddModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Ajouter une tâche manuellement
+                <!-- Bouton de rétractation -->
+                <button @click="sidebarOpen = !sidebarOpen" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-700 transition">
+                    <i data-lucide="chevrons-left" class="w-4 h-4 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'"></i>
                 </button>
             </div>
 
-            <!-- Écran 4 : Matrice Eisenhower Interactive -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                <!-- Quadrant 1 : Urgent + Important -->
-                <div class="bg-slate-800/80 border-2 border-rose-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
-                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full bg-rose-500"></div>
-                            <h4 class="font-bold text-rose-400 text-sm">À faire en priorité (Urgent & Important)</h4>
-                        </div>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-300" x-text="getTasksByQuadrant('do').length"></span>
-                    </div>
-                    <div class="space-y-3 flex-1 min-h-[140px]">
-                        <template x-for="task in getTasksByQuadrant('do')" :key="task.id">
-                            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-rose-500/50 transition">
-                                <div class="flex justify-between items-start gap-2">
-                                    <span class="font-medium text-sm text-white" x-text="task.title"></span>
-                                    <div class="flex items-center gap-1">
-                                        <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                                        <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
-                                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
-                                    <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
-                                </div>
-                            </div>
-                        </template>
-                        <div x-show="getTasksByQuadrant('do').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">
-                            Aucune tâche dans ce quadrant
-                        </div>
-                    </div>
-                </div>
+            <!-- Navigation Links -->
+            <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto">
+                <button @click="currentTab = 'matrix'" :class="currentTab === 'matrix' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-700/60'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
+                    <span x-show="sidebarOpen" x-transition>Tableau & Matrice</span>
+                </button>
+                <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-700/60'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition">
+                    <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+                    <span x-show="sidebarOpen" x-transition>Paramètres</span>
+                </button>
+            </nav>
 
-                <!-- Quadrant 2 : Important mais pas urgent -->
-                <div class="bg-slate-800/80 border-2 border-amber-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
-                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
-                            <h4 class="font-bold text-amber-400 text-sm">À planifier (Important / Non urgent)</h4>
-                        </div>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300" x-text="getTasksByQuadrant('plan').length"></span>
-                    </div>
-                    <div class="space-y-3 flex-1 min-h-[140px]">
-                        <template x-for="task in getTasksByQuadrant('plan')" :key="task.id">
-                            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-amber-500/50 transition">
-                                <div class="flex justify-between items-start gap-2">
-                                    <span class="font-medium text-sm text-white" x-text="task.title"></span>
-                                    <div class="flex items-center gap-1">
-                                        <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                                        <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
-                                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
-                                    <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
-                                </div>
-                            </div>
-                        </template>
-                        <div x-show="getTasksByQuadrant('plan').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">
-                            Aucune tâche dans ce quadrant
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quadrant 3 : Urgent mais peu important -->
-                <div class="bg-slate-800/80 border-2 border-yellow-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
-                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <h4 class="font-bold text-yellow-400 text-sm">À déléguer (Urgent / Peu important)</h4>
-                        </div>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-300" x-text="getTasksByQuadrant('delegate').length"></span>
-                    </div>
-                    <div class="space-y-3 flex-1 min-h-[140px]">
-                        <template x-for="task in getTasksByQuadrant('delegate')" :key="task.id">
-                            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-yellow-500/50 transition">
-                                <div class="flex justify-between items-start gap-2">
-                                    <span class="font-medium text-sm text-white" x-text="task.title"></span>
-                                    <div class="flex items-center gap-1">
-                                        <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                                        <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
-                                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
-                                    <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
-                                </div>
-                            </div>
-                        </template>
-                        <div x-show="getTasksByQuadrant('delegate').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">
-                            Aucune tâche dans ce quadrant
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quadrant 4 : Ni urgent ni important -->
-                <div class="bg-slate-800/80 border-2 border-emerald-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
-                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-                            <h4 class="font-bold text-emerald-400 text-sm">À repousser / supprimer (Non prioritaire)</h4>
-                        </div>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300" x-text="getTasksByQuadrant('eliminate').length"></span>
-                    </div>
-                    <div class="space-y-3 flex-1 min-h-[140px]">
-                        <template x-for="task in getTasksByQuadrant('eliminate')" :key="task.id">
-                            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-emerald-500/50 transition">
-                                <div class="flex justify-between items-start gap-2">
-                                    <span class="font-medium text-sm text-white" x-text="task.title"></span>
-                                    <div class="flex items-center gap-1">
-                                        <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                                        <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
-                                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
-                                    <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
-                                    <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
-                                </div>
-                            </div>
-                        </template>
-                        <div x-show="getTasksByQuadrant('eliminate').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">
-                            Aucune tâche dans ce quadrant
-                        </div>
-                    </div>
-                </div>
-
+            <!-- Footer Sidebar -->
+            <div class="p-3 border-t border-slate-700 text-center" x-show="sidebarOpen">
+                <span class="text-[10px] text-slate-500">Sauvegarde locale active</span>
             </div>
+        </aside>
 
-        </main>
+        <!-- Contenu Principal -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <!-- Header supérieur -->
+            <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-30 px-6 py-3.5 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider" x-text="currentTab === 'matrix' ? 'Espace de travail - Matrice' : 'Configuration & Paramètres'"></h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button @click="exportJSON()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium text-slate-200 transition">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> JSON
+                    </button>
+                    <button @click="exportCSV()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium text-slate-200 transition">
+                        <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> CSV
+                    </button>
+                </div>
+            </header>
+
+            <!-- Corps de la page dynamique -->
+            <main class="max-w-7xl mx-auto px-6 py-6 flex-1 w-full space-y-6">
+                
+                <!-- ONGLET 1 : MATRICE & TÂCHES -->
+                <div x-show="currentTab === 'matrix'" class="space-y-6">
+                    <!-- Saisie projet -->
+                    <section class="bg-slate-800/60 backdrop-blur border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-base font-semibold text-white mb-2 flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-5 h-5 text-indigo-400"></i> Quel travail souhaitez-vous organiser ?
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">Décrivez votre objectif. L'IA découpera automatiquement le travail en tâches.</p>
+                        
+                        <div class="space-y-4">
+                            <textarea 
+                                x-model="userInput" 
+                                rows="3" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition"
+                                placeholder="Ex : Je dois préparer le lancement de mon application sur GitHub..."></textarea>
+                            
+                            <div class="flex flex-wrap items-center justify-between gap-4">
+                                <div class="flex items-center gap-2 text-xs text-slate-400">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span>Moteur IA actif</span>
+                                </div>
+                                <button 
+                                    @click="generateTasks()" 
+                                    :disabled="isAnalyzing || !userInput.trim()"
+                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm shadow-lg shadow-indigo-600/20 transition cursor-pointer">
+                                    <span x-show="!isAnalyzing" class="flex items-center gap-2">
+                                        <i data-lucide="wand-2" class="w-4 h-4"></i> Analyser et découper
+                                    </span>
+                                    <span x-show="isAnalyzing" class="flex items-center gap-2">
+                                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Traitement...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <h4 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="list-todo" class="w-5 h-5 text-indigo-400"></i> Matrice Eisenhower Interactive (<span x-text="tasks.length"></span>)
+                        </h4>
+                        <button @click="openAddModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Nouvelle tâche
+                        </button>
+                    </div>
+
+                    <!-- Les 4 Quadrants -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Q1 : Urgent + Important -->
+                        <div class="bg-slate-800/80 border-2 border-rose-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
+                            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                                    <h5 class="font-bold text-rose-400 text-sm">À faire en priorité (Urgent & Important)</h5>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-300" x-text="getTasksByQuadrant('do').length"></span>
+                            </div>
+                            <div class="space-y-3 flex-1 min-h-[140px]">
+                                <template x-for="task in getTasksByQuadrant('do')" :key="task.id">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-rose-500/50 transition">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-1">
+                                                <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                                                <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
+                                        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
+                                            <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="getTasksByQuadrant('do').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">Vide</div>
+                            </div>
+                        </div>
+
+                        <!-- Q2 : Important mais pas urgent -->
+                        <div class="bg-slate-800/80 border-2 border-amber-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
+                            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                    <h5 class="font-bold text-amber-400 text-sm">À planifier (Important / Non urgent)</h5>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300" x-text="getTasksByQuadrant('plan').length"></span>
+                            </div>
+                            <div class="space-y-3 flex-1 min-h-[140px]">
+                                <template x-for="task in getTasksByQuadrant('plan')" :key="task.id">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-amber-500/50 transition">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-1">
+                                                <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                                                <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
+                                        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
+                                            <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="getTasksByQuadrant('plan').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">Vide</div>
+                            </div>
+                        </div>
+
+                        <!-- Q3 : Urgent mais peu important -->
+                        <div class="bg-slate-800/80 border-2 border-yellow-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
+                            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <h5 class="font-bold text-yellow-400 text-sm">À déléguer (Urgent / Peu important)</h5>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-300" x-text="getTasksByQuadrant('delegate').length"></span>
+                            </div>
+                            <div class="space-y-3 flex-1 min-h-[140px]">
+                                <template x-for="task in getTasksByQuadrant('delegate')" :key="task.id">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-yellow-500/50 transition">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-1">
+                                                <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                                                <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
+                                        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
+                                            <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="getTasksByQuadrant('delegate').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">Vide</div>
+                            </div>
+                        </div>
+
+                        <!-- Q4 : Ni urgent ni important -->
+                        <div class="bg-slate-800/80 border-2 border-emerald-500/40 rounded-2xl p-5 flex flex-col shadow-lg">
+                            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                                    <h5 class="font-bold text-emerald-400 text-sm">À repousser / supprimer</h5>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300" x-text="getTasksByQuadrant('eliminate').length"></span>
+                            </div>
+                            <div class="space-y-3 flex-1 min-h-[140px]">
+                                <template x-for="task in getTasksByQuadrant('eliminate')" :key="task.id">
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 space-y-2 hover:border-emerald-500/50 transition">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <span class="font-medium text-sm text-white" x-text="task.title"></span>
+                                            <div class="flex items-center gap-1">
+                                                <button @click="editTask(task)" class="text-slate-400 hover:text-slate-200 p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                                                <button @click="deleteTask(task.id)" class="text-slate-400 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 italic bg-slate-800/50 p-2 rounded-lg border border-slate-700/50" x-text="'💡 ' + task.aiReason"></p>
+                                        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.duration"></span>
+                                            <span class="bg-slate-800 px-2 py-0.5 rounded" x-text="task.dueDate"></span>
+                                            <span class="text-indigo-400 font-medium" x-text="task.assignee"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="getTasksByQuadrant('eliminate').length === 0" class="h-full flex items-center justify-center text-xs text-slate-500 italic py-6">Vide</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ONGLET 2 : PARAMÈTRES -->
+                <div x-show="currentTab === 'settings'" class="space-y-6 max-w-2xl">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+                        <h3 class="text-base font-bold text-white border-b border-slate-700 pb-3 flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-5 h-5 text-indigo-400"></i> Préférences de l'application
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-2">Thème de l'interface</label>
+                                <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option>Sombre (Dark)</option>
+                                    <option>Clair (Light)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-2">Taille des caractères</label>
+                                <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option>Normale (14px)</option>
+                                    <option>Grande (16px)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-2">
+                            <label class="block text-xs font-medium text-slate-400">Fournisseur IA & Clé API</label>
+                            <select x-model="aiProvider" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="local">Sans IA (Génération locale)</option>
+                                <option value="gemini">Google Gemini</option>
+                                <option value="openai">OpenAI (ChatGPT)</option>
+                            </select>
+                            <input type="password" placeholder="Entrez votre clé API (optionnel)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-700 flex justify-between items-center">
+                            <button @click="resetAll()" class="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-xs font-medium text-rose-400 border border-rose-500/20 transition">
+                                Réinitialiser les données
+                            </button>
+                            <button @click="alert('Paramètres enregistrés !')" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white transition shadow-lg shadow-indigo-600/20">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
     </div>
 
     <!-- Modal d'édition / création de tâche -->
@@ -259,18 +328,18 @@
                         <input type="text" x-model="currentTask.assignee" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Importance (1 à 5) : <span x-text="currentTask.importance"></span></label>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Importance (1-5) : <span x-text="currentTask.importance"></span></label>
                         <input type="range" min="1" max="5" x-model.number="currentTask.importance" class="w-full accent-indigo-500 mt-2">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Urgence (1 à 5) : <span x-text="currentTask.urgency"></span></label>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Urgence (1-5) : <span x-text="currentTask.urgency"></span></label>
                     <input type="range" min="1" max="5" x-model.number="currentTask.urgency" class="w-full accent-indigo-500 mt-1">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Explication / Raison IA</label>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Raison de l'IA</label>
                     <input type="text" x-model="currentTask.aiReason" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
             </div>
@@ -286,16 +355,19 @@
     <script>
         function priorIAApp() {
             return {
+                sidebarOpen: true,
+                currentTab: 'matrix',
+                aiProvider: 'local',
                 userInput: '',
                 isAnalyzing: false,
                 showModal: false,
                 isEditing: false,
                 currentTask: { id: null, title: '', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 3, urgency: 3, aiReason: '' },
                 tasks: [
-                    { id: 1, title: 'Choisir les projets à présenter', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Fondation indispensable pour démarrer le portfolio.' },
-                    { id: 2, title: 'Préparer les descriptions', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 2, aiReason: 'Important pour la clarté mais sans échéance critique immédiate.' },
-                    { id: 3, title: 'Optimiser les images', duration: '1 h', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 4, urgencyVal: 4, aiReason: 'Tâche technique répétitive pouvant être confiée ou automatisée.' },
-                    { id: 4, title: 'Mettre le site en ligne', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Étape finale bloquante pour la visibilité du projet.' }
+                    { id: 1, title: 'Choisir les projets à présenter', duration: '30 min', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Fondation indispensable pour démarrer.' },
+                    { id: 2, title: 'Préparer les descriptions', duration: '2 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 4, urgency: 2, aiReason: 'Important mais sans échéance critique immédiate.' },
+                    { id: 3, title: 'Optimiser les images', duration: '1 h', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 4, aiReason: 'Tâche technique pouvant être déléguée.' },
+                    { id: 4, title: 'Mettre le site en ligne', duration: '45 min', dueDate: 'Vendredi', assignee: 'Moi', importance: 5, urgency: 4, aiReason: 'Étape finale bloquante pour la visibilité.' }
                 ],
                 init() {
                     const saved = localStorage.getItem('prior_ia_tasks');
@@ -312,30 +384,28 @@
                     if (!this.userInput.trim()) return;
                     this.isAnalyzing = true;
                     setTimeout(() => {
-                        // Simulation de découpage IA basé sur l'input utilisateur
                         const newTasks = [
-                            { id: Date.now() + 1, title: 'Analyser la demande : ' + this.userInput.substring(0, 25) + '...', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Nécessaire pour cadrer le périmètre du projet.' },
-                            { id: Date.now() + 2, title: 'Structurer les livrables principaux', duration: '2 h', dueDate: 'Demain', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Permet d’avoir une vision claire des étapes à suivre.' },
-                            { id: Date.now() + 3, title: 'Vérification des outils et accès', duration: '30 min', dueDate: 'Cette semaine', assignee: 'À déléguer', importance: 2, urgency: 3, aiReason: 'Tâche logistique simple ne nécessitant pas votre intervention directe.' }
+                            { id: Date.now() + 1, title: 'Analyser la demande : ' + this.userInput.substring(0, 20) + '...', duration: '1 h', dueDate: "Aujourd'hui", assignee: 'Moi', importance: 5, urgency: 5, aiReason: 'Nécessaire pour cadrer le projet.' },
+                            { id: Date.now() + 2, title: 'Structurer les livrables', duration: '2 h', dueDate: 'Demain', assignee: 'Moi', importance: 4, urgency: 3, aiReason: 'Vision claire des étapes.' }
                         ];
                         this.tasks.push(...newTasks);
                         this.isAnalyzing = false;
                         this.userInput = '';
                         this.saveToStorage();
-                    }, 1200);
+                    }, 1000);
                 },
                 getQuadrant(imp, urg) {
-                    if (imp >= 3 && urg >= 3) return 'do';          // Urgent + Important
-                    if (imp >= 3 && urg < 3) return 'plan';        // Important / Non urgent
-                    if (imp < 3 && urg >= 3) return 'delegate';    // Urgent / Peu important
-                    return 'eliminate';                            // Ni urgent ni important
+                    if (imp >= 3 && urg >= 3) return 'do';
+                    if (imp >= 3 && urg < 3) return 'plan';
+                    if (imp < 3 && urg >= 3) return 'delegate';
+                    return 'eliminate';
                 },
                 getTasksByQuadrant(quadrant) {
                     return this.tasks.filter(t => this.getQuadrant(t.importance, t.urgency) === quadrant);
                 },
                 openAddModal() {
                     this.isEditing = false;
-                    this.currentTask = { id: Date.now(), title: '', duration: '1 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 3, urgency: 3, aiReason: 'Ajout manuel par l’utilisateur.' };
+                    this.currentTask = { id: Date.now(), title: '', duration: '1 h', dueDate: 'Cette semaine', assignee: 'Moi', importance: 3, urgency: 3, aiReason: 'Création manuelle.' };
                     this.showModal = true;
                 },
                 editTask(task) {
@@ -359,7 +429,7 @@
                     this.saveToStorage();
                 },
                 resetAll() {
-                    if (confirm('Voulez-vous vraiment effacer toutes les tâches ?')) {
+                    if (confirm('Effacer toutes les tâches ?')) {
                         this.tasks = [];
                         this.saveToStorage();
                     }
